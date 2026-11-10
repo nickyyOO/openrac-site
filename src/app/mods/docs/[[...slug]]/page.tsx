@@ -284,7 +284,7 @@ export default async function DocsPage(props: PageProps<"/mods/docs/[[...slug]]"
                     <b className="text-hi">Experimental:</b> these name the game&apos;s internals and follow the decompilation.
                   </>
                 ) : (
-                  <>A field is never removed, never changes type and never becomes read-only.</>
+                  <>Stable: a field is never removed and never changes type.</>
                 )}
               </p>
               <div tabIndex={0} className="d-card overflow-x-auto">

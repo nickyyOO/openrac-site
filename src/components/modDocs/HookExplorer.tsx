@@ -168,7 +168,7 @@ export default function HookExplorer({ hooks, game, discs, manifestHref, scripts
             </p>
             {fromCatalogue(h) && (
               <p className="text-[13px] text-soft">
-                {h.experimental ? "From the behaviour catalogue: its id stays, its name and fields may change." : "From the behaviour catalogue: its id and signature stay, and a name it had stays an alias."} Check the moby&apos;s class in your hook when several classes share it.
+                {h.experimental ? "From the behaviour catalogue: its id stays, its name and fields may change." : "From the behaviour catalogue."} If several classes share it, check the moby&apos;s class in your hook.
               </p>
             )}
           </div>
