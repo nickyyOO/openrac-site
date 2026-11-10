@@ -62,7 +62,10 @@ test("a hook point's code comes from its own signature", () => {
 test("hook points are found by what they touch, described without the game's names", () => {
   assert.equal(hookTopic({ id: "rac1.player.take_damage", name: "Hero_TakeDamage", experimental: false }), "hero");
   assert.equal(hookTopic({ id: "rac1.gold_bolt.count_collected", name: "x", experimental: false }), "items");
-  assert.equal(hookTopic({ id: "rac1.moby.bolt.update", name: "x", experimental: true }), "experimental");
+  assert.equal(hookTopic({ id: "rac1.moby.bolt.update", name: "x", experimental: true }), "catalogue");
+  // A stable moby update of the catalogue (SDK 1.14.6 on) stays with the other moby updates.
+  assert.equal(hookTopic({ id: "rac1.moby.bolt.update", name: "x", experimental: false, catalogue: true }), "catalogue");
+  assert.equal(hookTopic({ id: "rac1.moby.record_death", name: "x", experimental: false, catalogue: false }), "world");
   assert.equal(hookTopic({ id: "rac1.new_part.x", name: "x", experimental: false }), "other");
   assert.equal(plainAbout({ about: "Takes hit points off the hero (Hero_TakeDamage): at most one.", name: "Hero_TakeDamage", aliases: [] }), "Takes hit points off the hero: at most one.");
   assert.equal(plainAbout({ about: "One report (PadState, at pad), each poll.", name: "Pad_ProcessReport", aliases: [] }), "One report (PadState, at pad), each poll.");

@@ -231,7 +231,9 @@ def hooks(sdk: Path) -> list[dict]:
                 "signature": h["signature"],
                 "params": h.get("params", []),
                 "about": h.get("about", ""),
-                "experimental": h.get("origin") == "catalogue",
+                # An SDK that says so (1.14.6 on) marks each hook point; before, the catalogue's were experimental.
+                "experimental": bool(h.get("experimental", h.get("origin") == "catalogue")),
+                "catalogue": h.get("origin") == "catalogue",
                 "classes": h.get("classes", []),
                 "c": {"type": ct["type"], "macro": ct["macro"],
                       "params": ct.get("params", [])} if ct else None,
@@ -239,7 +241,8 @@ def hooks(sdk: Path) -> list[dict]:
             })
         out.append({"game": game, "discs": discs, "hooks": rows,
                     "fields": [{"name": f["name"], "type": f["type"], "readonly": bool(f.get("readonly")),
-                                "about": f.get("about", "")} for f in fields]})
+                                "about": f.get("about", ""), "experimental": bool(f.get("experimental", True))}
+                               for f in fields]})
     return out
 
 

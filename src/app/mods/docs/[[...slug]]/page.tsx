@@ -14,7 +14,7 @@ import LangMemory from "@/components/modDocs/LangMemory";
 import Since from "@/components/modDocs/Since";
 import { SHARE_IMAGE, siteUrl } from "@/lib/machine";
 import { getDocsIndex, getRelease } from "@/lib/modDocs";
-import { docsHref, firstMod, gameName, manifestExamples, manifestHelp, pagesOf, parseSlug, REPO, slugger } from "@/lib/modDocs/logic";
+import { docsHref, firstMod, fromCatalogue, gameName, manifestExamples, manifestHelp, pagesOf, parseSlug, REPO, slugger } from "@/lib/modDocs/logic";
 import type { Release } from "@/lib/modDocs/types";
 
 // Every page is built ahead from mod-docs/data/; any other address is a 404.
@@ -278,7 +278,14 @@ export default async function DocsPage(props: PageProps<"/mods/docs/[[...slug]]"
             <section id="fields" className="mt-12 grid scroll-mt-20 gap-3">
               <h2 className="text-[19px] font-semibold text-hi">Fields</h2>
               <p className="max-w-[760px] text-[15px] text-body">
-                Game state a script reads and writes by name: <code className="text-gold">openrac.fields.{g.fields[0].name}</code>. <b className="text-hi">Experimental:</b> these name the game&apos;s internals and follow the decompilation.
+                Game state a script reads and writes by name: <code className="text-gold">openrac.fields.{g.fields[0].name}</code>.{" "}
+                {g.fields.some((f) => f.experimental !== false) ? (
+                  <>
+                    <b className="text-hi">Experimental:</b> these name the game&apos;s internals and follow the decompilation.
+                  </>
+                ) : (
+                  <>A field is never removed, never changes type and never becomes read-only.</>
+                )}
               </p>
               <div tabIndex={0} className="d-card overflow-x-auto">
                 <table className="w-full text-left text-[14px]">
@@ -321,7 +328,7 @@ export default async function DocsPage(props: PageProps<"/mods/docs/[[...slug]]"
             games={r.hooks.length ? r.hooks.map((x) => ({ game: x.game, discs: x.discs.length ? x.discs : ["pal", "ntsc"] })) : [{ game: "rac1", discs: ["pal", "ntsc"] }]}
             keys={r.keys}
             hookNames={r.hookNames}
-            hookIds={r.hooks.flatMap((x) => x.hooks.filter((h) => h.id && !h.experimental).map((h) => h.id))}
+            hookIds={r.hooks.flatMap((x) => x.hooks.filter((h) => h.id && !fromCatalogue(h)).map((h) => h.id))}
             help={manifestHelp(md)}
             guide={md ? docsHref(version, "manifest", latest) : undefined}
             examples={manifestExamples(md)}

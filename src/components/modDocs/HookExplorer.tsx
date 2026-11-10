@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
-import { HOOK_IDEAS, HOOK_MODES, HOOK_TOPICS, type HookMode, hookParams, hookStubC, hookStubCpp, hookStubLuau, hookTopic, plainAbout } from "@/lib/modDocs/logic";
+import { fromCatalogue, HOOK_IDEAS, HOOK_MODES, HOOK_TOPICS, type HookMode, hookParams, hookStubC, hookStubCpp, hookStubLuau, hookTopic, plainAbout } from "@/lib/modDocs/logic";
 import type { Hook } from "@/lib/modDocs/types";
 import Code from "./Code";
 import { readLang, writeLang } from "./LangMemory";
@@ -30,7 +30,7 @@ export default function HookExplorer({ hooks, game, discs, manifestHref, scripts
   const ideas = HOOK_IDEAS.map((i) => ({ ...i, hook: hooks.find((h) => h.id === `${game}.${i.id}` && !h.experimental) })).filter((i): i is typeof i & { hook: Hook } => !!i.hook);
   const [query, setQuery] = useState("");
   const [topic, setTopic] = useState<string>("all");
-  const [selected, setSelected] = useState<string>(() => key(ideas[0]?.hook ?? hooks.find((h) => !h.experimental) ?? hooks[0]));
+  const [selected, setSelected] = useState<string>(() => key(ideas[0]?.hook ?? hooks.find((h) => !fromCatalogue(h)) ?? hooks[0]));
   const [mode, setMode] = useState<HookMode>("wrap");
   const [picked, setPicked] = useState<Lang | null>(null);
   const [modId, setModId] = useState("my-mod");
@@ -48,7 +48,7 @@ export default function HookExplorer({ hooks, game, discs, manifestHref, scripts
     for (const h of hooks) count.set(hookTopic(h), (count.get(hookTopic(h)) ?? 0) + 1);
     const known = HOOK_TOPICS.filter((t) => count.has(t.topic)).map((t) => ({ ...t, n: count.get(t.topic)! }));
     if (count.has("other")) known.push({ topic: "other", label: "Other", what: "", parts: [], n: count.get("other")! });
-    if (count.has("experimental")) known.push({ topic: "experimental", label: "Experimental", what: "every moby's update, from the behaviour catalogue", parts: [], n: count.get("experimental")! });
+    if (count.has("catalogue")) known.push({ topic: "catalogue", label: hooks.some((x) => fromCatalogue(x) && x.experimental) ? "Experimental" : "Moby updates", what: "every moby's update, from the behaviour catalogue", parts: [], n: count.get("catalogue")! });
     return known;
   }, [hooks]);
 
@@ -77,12 +77,12 @@ export default function HookExplorer({ hooks, game, discs, manifestHref, scripts
     const words = query.toLowerCase().split(/\s+/).filter(Boolean);
     // A search looks everywhere; without one, the topic picked (stable hook points for "all").
     return hooks
-      .filter((h) => (words.length ? true : topic === "all" ? !h.experimental : hookTopic(h) === topic))
+      .filter((h) => (words.length ? true : topic === "all" ? !fromCatalogue(h) : hookTopic(h) === topic))
       .filter((h) => {
         const text = `${h.id} ${h.name} ${h.aliases.join(" ")} ${h.about} ${h.classes.join(" ")}`.toLowerCase();
         return words.every((w) => text.includes(w));
       })
-      .sort((a, b) => Number(a.experimental) - Number(b.experimental));
+      .sort((a, b) => Number(fromCatalogue(a)) - Number(fromCatalogue(b)));
   }, [hooks, query, topic]);
 
   const h = hooks.find((x) => key(x) === selected) ?? hooks[0];
@@ -117,7 +117,7 @@ export default function HookExplorer({ hooks, game, discs, manifestHref, scripts
           <div className="flex gap-2">
             <input type="search" className="d-field min-w-0 flex-1" placeholder="Search hook points" aria-label="Search hook points" value={query} onChange={(e) => { setQuery(e.target.value); setShown(PAGE); }} />
             <select className="d-field w-auto max-w-[45%]" aria-label="Part of the game" value={topic} onChange={(e) => { setQuery(""); setTopic(e.target.value); setShown(PAGE); }}>
-              <option value="all">All ({hooks.filter((x) => !x.experimental).length})</option>
+              <option value="all">All ({hooks.filter((x) => !fromCatalogue(x)).length})</option>
               {topics.map((t) => (
                 <option key={t.topic} value={t.topic}>
                   {t.label} ({t.n})
@@ -166,7 +166,11 @@ export default function HookExplorer({ hooks, game, discs, manifestHref, scripts
             <p className="text-[12.5px] text-dim">
               {[also.length ? `Also named ${also.join(", ")}` : "", shownDiscs.length ? `Discs: ${shownDiscs.join(", ")}` : "", h.classes.length ? `Moby classes: ${h.classes.join(", ")}` : ""].filter(Boolean).join(" · ")}
             </p>
-            {h.experimental && <p className="text-[13px] text-soft">From the behaviour catalogue: its id stays, its name and fields may change. Check the moby&apos;s class in your hook when several classes share it.</p>}
+            {fromCatalogue(h) && (
+              <p className="text-[13px] text-soft">
+                {h.experimental ? "From the behaviour catalogue: its id stays, its name and fields may change." : "From the behaviour catalogue: its id and signature stay, and a name it had stays an alias."} Check the moby&apos;s class in your hook when several classes share it.
+              </p>
+            )}
           </div>
 
           <div className="d-card grid gap-3 p-4">

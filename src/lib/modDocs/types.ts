@@ -45,6 +45,8 @@ export type Hook = {
   params: string[];
   about: string;
   experimental: boolean;
+  /** From the behaviour catalogue (a moby class's update); absent in data built before it was said. */
+  catalogue?: boolean;
   classes: number[];
   /** The hook point's own C type and macro (games/<game>.h), when it has them. */
   c: { type: string; macro: string; params: CParam[] } | null;
@@ -56,7 +58,8 @@ export type GameHooks = {
   game: string;
   discs: string[];
   hooks: Hook[];
-  fields: { name: string; type: string; readonly: boolean; about: string }[];
+  /** experimental: absent in data built before it was said, when every field was. */
+  fields: { name: string; type: string; readonly: boolean; about: string; experimental?: boolean }[];
 };
 
 export type PartDiff = { added: string[]; removed: string[]; changed: { name: string; from: string; to: string }[] };

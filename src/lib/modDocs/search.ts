@@ -3,7 +3,7 @@
  * browser runs over them. Built on the server (/mods/docs/search/<version>), fetched when the
  * search first opens.
  */
-import { docsHref, guideTitle, hookParams, pagesOf, parseSignature, plainAbout, slugger, withoutSince } from "./logic.ts";
+import { docsHref, fromCatalogue, guideTitle, hookParams, pagesOf, parseSignature, plainAbout, slugger, withoutSince } from "./logic.ts";
 import type { Release } from "./types.ts";
 
 /** t: what is shown; k: what kind of thing it is; h: where it is; d: its first sentence; s: its signature; a: other names it answers to. */
@@ -57,7 +57,7 @@ export function searchEntries(r: Release, latest: string): Entry[] {
   for (const g of r.hooks) {
     for (const h of g.hooks) {
       const name = (h.id || h.name).split(".").pop();
-      out.push({ t: h.id || h.name, k: h.experimental ? "Hook (experimental)" : "Hook point", h: at(`reference/hooks-${g.game}`, h.id || h.name), d: short(plainAbout(h)) || undefined, a: [h.id ? h.name : "", ...h.aliases].filter(Boolean).join(" ") || undefined, s: line(`${parseSignature(h.signature).ret} ${name}(${hookParams(h).map((p) => `${p.type} ${p.name}`).join(", ")})`) });
+      out.push({ t: h.id || h.name, k: h.experimental ? "Hook (experimental)" : fromCatalogue(h) ? "Hook (moby update)" : "Hook point", h: at(`reference/hooks-${g.game}`, h.id || h.name), d: short(plainAbout(h)) || undefined, a: [h.id ? h.name : "", ...h.aliases].filter(Boolean).join(" ") || undefined, s: line(`${parseSignature(h.signature).ret} ${name}(${hookParams(h).map((p) => `${p.type} ${p.name}`).join(", ")})`) });
     }
     for (const f of g.fields) out.push({ t: `openrac.fields.${f.name}`, k: "Field", h: at(`reference/hooks-${g.game}`, `field-${f.name}`), d: short(`${f.type}${f.readonly ? ", read-only" : ""}. ${f.about}`) });
   }
@@ -78,7 +78,7 @@ export function score(e: Entry, words: string[]): number {
   }
   // Pages and guides before the long lists of API names and hook points.
   if (e.k === "Guide" || e.k === "Reference" || e.k === "Try it" || e.k === "Releases") s += 15;
-  if (e.k.startsWith("Hook (experimental)")) s -= 5;
+  if (e.k.startsWith("Hook (experimental)") || e.k.startsWith("Hook (moby update)")) s -= 5;
   return s - Math.min(e.t.length, 60) / 30;
 }
 

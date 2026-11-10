@@ -336,9 +336,14 @@ export const HOOK_TOPICS: { topic: string; label: string; what: string; parts: s
   { topic: "saves", label: "Saves", what: "new games, saving and loading", parts: ["save"] },
 ];
 
-/** The topic of a hook point; experimental ones (the behaviour catalogue) are a topic of their own. */
-export function hookTopic(h: Pick<Hook, "id" | "name" | "experimental">): string {
-  if (h.experimental) return "experimental";
+/** Whether a hook point is a moby class's update from the behaviour catalogue (older data: its experimental ones). */
+export function fromCatalogue(h: Pick<Hook, "experimental" | "catalogue">): boolean {
+  return h.catalogue ?? h.experimental;
+}
+
+/** The topic of a hook point; the behaviour catalogue's (every moby's update) are a topic of their own. */
+export function hookTopic(h: Pick<Hook, "id" | "name" | "experimental" | "catalogue">): string {
+  if (fromCatalogue(h)) return "catalogue";
   const part = (h.id || "").split(".")[1] ?? "";
   return HOOK_TOPICS.find((t) => t.parts.includes(part))?.topic ?? "other";
 }

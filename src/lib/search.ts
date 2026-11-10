@@ -65,7 +65,7 @@ function hit(p: Prepared, w: string, typos: boolean): number {
 }
 
 /** Pages people look for first, ahead of the long lists of API names and news items. */
-const BOOST: Record<string, number> = { Page: 14, Section: 12, Project: 25, Mod: 10, System: 8, FAQ: 6, Guide: 5, "Hook (experimental)": -6 };
+const BOOST: Record<string, number> = { Page: 14, Section: 12, Project: 25, Mod: 10, System: 8, FAQ: 6, Guide: 5, "Hook (experimental)": -6, "Hook (moby update)": -6 };
 
 /** Words a question is made of ("how do I install a mod"): left out, unless nothing else is typed. */
 const FILLER = new Set(["a", "an", "the", "how", "do", "does", "i", "can", "to", "is", "are", "what", "why", "where", "of", "for", "in", "on", "my", "it", "with"]);
