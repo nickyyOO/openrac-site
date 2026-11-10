@@ -363,6 +363,12 @@ export function checkManifest(m: unknown, t: Tables): string[] {
     const ok = isStr(assets) && assets && !assets.includes("\\") && !assets.includes(":");
     if (!ok || (assets as string).startsWith("/") || (assets as string).split("/").some((part) => part === "" || part === "." || part === "..")) errors.push('assets: a folder inside the mod, with / ("assets")');
   }
+  // The on-screen pad's buttons (interface 1.13): a .json file inside the mod. Its contents are checked when the mod is packaged.
+  const touch = m.touch;
+  if (touch !== undefined && touch !== null) {
+    const ok = isStr(touch) && touch.endsWith(".json") && !touch.includes("\\") && !touch.includes(":");
+    if (!ok || (touch as string).startsWith("/") || (touch as string).split("/").some((part) => part === "" || part === "." || part === "..")) errors.push('touch: a .json file inside the mod, with / ("touch.json")');
+  }
   if (isStr(mid)) {
     for (const name of ["requires", "conflicts"]) {
       const refs = m[name];
